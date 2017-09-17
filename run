@@ -1,0 +1,46 @@
+#!/bin/bash
+####mkpasswd --method=SHA-512 --rounds=4096
+basepath="$(cd `dirname $0`; pwd)/code"
+codefolder=(coreos ssh_authorized_keys hostname users write_files manage_etc_hosts)
+enter="\n"
+code="#cloud-config$enter"
+File="user"
+
+folder2=true
+echo -e "$code" > $File
+for  icode in ${codefolder[*]} 
+    do
+
+    # code="$code$enter"
+     if [ -d "$basepath/$icode" ]
+     then
+          filecount=`ls -lR $basepath/$icode/ | grep ".yml"|wc -l`
+          echo $filecount
+          if [ $filecount > 0 ]
+          then
+            code="$icode:$enter"
+            echo  -e  "$code" >> $File
+          fi
+ 
+          for ifolder in `ls -l $basepath/$icode | grep '^d' |  awk '{print $9}'` ;
+          do
+           if [ `ls -l |grep ".yml"|wc -l`>0 ] 
+           then
+           code="  $ifolder:$enter"
+           echo  -e  "$code" >> $File
+           fi
+           for iyml in `ls  $basepath/$icode/$ifolder | grep .yml` ;
+             do
+               cat  $basepath/$icode/$ifolder/$iyml >>$File
+             done
+
+     done
+
+          for iyml in `ls  $basepath/$icode | grep .yml` ;
+            do 
+              cat  $basepath/$icode/$iyml >>$File 
+            done
+     fi
+   done
+cat $File
+ coreos-cloudinit --from-file=$File --validate

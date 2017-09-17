@@ -1,0 +1,9 @@
+    - name: settimezone.service
+      command: start
+      content: |
+        [Unit]
+        Description=Set the time zone
+        [Service]
+        ExecStart=/usr/bin/timedatectl set-timezone Europe/Amsterdam
+        RemainAfterExit=yes
+        Type=oneshot
